@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eurecode — Where every great idea finds its code.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0056b3', 'primary-dark': '#003d80', 'primary-light': '#1a6fc4',
+            secondary: '#e0f2fe', 'secondary-dark': '#bae6fd',
+          },
+          fontFamily: {
+            display: ['DM Serif Display', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+            sans: ['Syne', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { --primary: #0056b3; --secondary: #e0f2fe; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #ffffff; color: #0a0a0a; font-family: 'Syne', sans-serif; overflow-x: hidden; }
+
+    .dot-grid {
+      background-image: radial-gradient(circle, #0056b320 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* NAVBAR */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid #e0f2fe; transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 32px #0056b312; }
+
+    .nav-link {
+      position: relative; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      font-weight: 400; letter-spacing: 0.04em; color: #334155; transition: color 0.2s; padding-bottom: 2px;
+    }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 1.5px;
+      background: var(--primary); transform: scaleX(0); transform-origin: left;
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    }
+    .nav-link:hover { color: var(--primary); }
+    .nav-link:hover::after { transform: scaleX(1); }
+
+    /* LANGUAGE SWITCHER */
+    .lang-switcher {
+      display: flex; align-items: center; gap: 0;
+      background: #f1f5f9; border-radius: 6px; padding: 3px; border: 1px solid #e2e8f0;
+    }
+    .lang-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.06em; padding: 5px 10px; border-radius: 4px; border: none;
+      cursor: pointer; transition: background 0.2s, color 0.2s; background: transparent; color: #94a3b8;
+    }
+    .lang-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px #0056b330; }
+    .lang-btn:not(.active):hover { color: var(--primary); }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 80px; }
+
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--secondary);
+      border: 1px solid #bae6fd; color: var(--primary); font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 500; padding: 5px 12px; border-radius: 999px; letter-spacing: 0.04em;
+    }
+
+    .headline { font-family: 'DM Serif Display', serif; font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: 1.08; color: #0a0a0a; }
+    .headline em { font-style: italic; color: var(--primary); }
+
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 10px; background: var(--primary); color: #fff;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em;
+      padding: 14px 28px; border-radius: 4px; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s; text-decoration: none;
+    }
+    .cta-btn:hover { background: #003d80; transform: translateY(-2px); box-shadow: 0 8px 32px #0056b330; }
+    .cta-btn .arrow { transition: transform 0.2s; display: inline-block; }
+    .cta-btn:hover .arrow { transform: translateX(4px); }
+
+    .cta-ghost {
+      display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--primary);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+      padding: 14px 24px; border-radius: 4px; border: 1.5px solid #0056b350; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; text-decoration: none;
+    }
+    .cta-ghost:hover { border-color: var(--primary); background: var(--secondary); }
+
+    /* ILLUSTRATION */
+    .illustration-wrap {
+      position: relative; width: 100%; max-width: 480px; aspect-ratio: 1 / 1.05; margin: auto;
+    }
+    .illustration-bg {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #e0f2fe 0%, #bae6fd55 60%, transparent 100%);
+      filter: blur(2px);
+    }
+
+    /* ANIMATIONS */
+    @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-18px)} }
+    @keyframes floatYslow { 0%,100%{transform:translateY(0px) rotate(-3deg)} 50%{transform:translateY(-10px) rotate(3deg)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideRight { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+
+    .float-main { animation: floatY 5s ease-in-out infinite; }
+    .float-slow { animation: floatYslow 7s ease-in-out infinite; }
+
+    .hero-text > * { opacity:0; animation: fadeUp 0.7s cubic-bezier(.4,0,.2,1) forwards; }
+    .hero-text > *:nth-child(1){animation-delay:0.1s}
+    .hero-text > *:nth-child(2){animation-delay:0.25s}
+    .hero-text > *:nth-child(3){animation-delay:0.4s}
+    .hero-text > *:nth-child(4){animation-delay:0.55s}
+    .hero-visual { opacity:0; animation: slideRight 0.9s cubic-bezier(.4,0,.2,1) 0.3s forwards; }
+
+    /* STATS */
+    .stat-num { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--primary); line-height: 1; }
+
+    /* SERVICE CARDS */
+    .service-card {
+      background:#fff; border:1px solid #e0f2fe; border-radius:8px; padding:36px 32px;
+      position:relative; overflow:hidden; transition:border-color .25s,box-shadow .25s,transform .25s; cursor:default;
+    }
+    .service-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--primary),#38bdf8); transform:scaleX(0);
+      transform-origin:left; transition:transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    .service-card:hover { border-color:#bae6fd; box-shadow:0 12px 40px #0056b318; transform:translateY(-4px); }
+    .service-card:hover::before { transform:scaleX(1); }
+    .service-num { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:#94a3b8; letter-spacing:0.08em; margin-bottom:16px; }
+    .service-icon {
+      width:48px; height:48px; background:var(--secondary); border-radius:10px;
+      display:flex; align-items:center; justify-content:center; margin-bottom:20px; transition:background .2s;
+    }
+    .service-card:hover .service-icon { background:#bae6fd; }
+    .service-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; color:#0a0a0a; margin-bottom:10px; }
+    .service-desc { font-size:0.88rem; color:#64748b; line-height:1.7; }
+
+    /* VALUE CARDS */
+    .value-card {
+      display:flex; gap:20px; align-items:flex-start; padding:28px; border-radius:8px;
+      background:#fff; border:1px solid #f1f5f9; transition:border-color .2s,box-shadow .2s;
+    }
+    .value-card:hover { border-color:#e0f2fe; box-shadow:0 8px 24px #0056b310; }
+    .value-dot { width:10px; height:10px; border-radius:50%; background:var(--primary); margin-top:6px; flex-shrink:0; }
+
+    /* CTA SECTION */
+    .cta-section {
+      background:linear-gradient(135deg,#0056b3 0%,#003d80 60%,#0369a1 100%);
+      position:relative; overflow:hidden;
+    }
+    .cta-section::before { content:''; position:absolute; top:-60px; right:-60px; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,.06); }
+    .cta-section::after { content:''; position:absolute; bottom:-80px; left:-40px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,.04); }
+
+    .cta-white-btn {
+      display:inline-flex; align-items:center; gap:8px; background:#fff; color:var(--primary);
+      font-family:'JetBrains Mono',monospace; font-size:0.82rem; font-weight:600; letter-spacing:0.06em;
+      padding:14px 28px; border-radius:4px; cursor:pointer;
+      transition:background .2s,transform .15s,box-shadow .2s; text-decoration:none; border:none;
+    }
+    .cta-white-btn:hover { background:#e0f2fe; transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,.15); }
+
+    /* FOOTER */
+    footer { background:#0a0a0a; color:#94a3b8; }
+    .footer-logo { font-family:'JetBrains Mono',monospace; font-size:1.15rem; font-weight:500; color:#fff; letter-spacing:-0.02em; }
+
+    .section-label {
+      font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.12em;
+      color:var(--primary); text-transform:uppercase; display:flex; align-items:center; gap:10px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,#0056b340,transparent); max-width:80px; }
+
+    .code-snippet {
+      font-family:'JetBrains Mono',monospace; font-size:0.72rem; background:#f8fafc;
+      border:1px solid #e2e8f0; border-radius:6px; padding:14px 18px; color:#475569; line-height:1.8;
+    }
+    .code-snippet .keyword { color:#0056b3; font-weight:500; }
+    .code-snippet .string { color:#059669; }
+    .code-snippet .comment { color:#94a3b8; }
+
+    /* MOBILE */
+    .mobile-menu {
+      display:none; position:fixed; top:65px; left:0; right:0; bottom:0;
+      background:rgba(255,255,255,.98); backdrop-filter:blur(16px);
+      flex-direction:column; align-items:center; justify-content:center; gap:40px; z-index:99;
+    }
+    .mobile-menu.open { display:flex; }
+    .mobile-link { font-family:'JetBrains Mono',monospace; font-size:1.1rem; color:#0a0a0a; text-decoration:none; letter-spacing:0.04em; }
+    .mobile-link:hover { color:var(--primary); }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:#0a0a0a; border-radius:2px; transition:transform .3s,opacity .3s; }
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+    @media(max-width:768px){
+      .hamburger{display:flex}
+      .desktop-nav{display:none !important}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav id="navbar">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2">
+      <div style="width:30px;height:30px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="8" cy="8" r="2" fill="#fff"/>
+        </svg>
+      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:500;color:#0a0a0a;letter-spacing:-0.03em;">
+        eure<span style="color:var(--primary);font-weight:600;">code</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="desktop-nav flex items-center gap-8" style="display:flex;">
+      <a href="#services" class="nav-link" data-en="Services" data-id="Layanan">Services</a>
+      <a href="#portfolio" class="nav-link" data-en="Portfolio" data-id="Portofolio">Portfolio</a>
+      <a href="#about" class="nav-link" data-en="About" data-id="Tentang">About</a>
+
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-id" onclick="setLang('id')">ID</button>
+      </div>
+
+      <a href="#contact" class="cta-btn" style="padding:10px 20px;font-size:0.78rem;">
+        <span data-en="Get in touch" data-id="Hubungi Kami">Get in touch</span> <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="lang-switcher" id="mobileLangSwitcher">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('id')">ID</button>
+      </div>
+      <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" class="mobile-link" onclick="toggleMenu()" data-en="Services" data-id="Layanan">Services</a>
+  <a href="#portfolio" class="mobile-link" onclick="toggleMenu()" data-en="Portfolio" data-id="Portofolio">Portfolio</a>
+  <a href="#about" class="mobile-link" onclick="toggleMenu()" data-en="About" data-id="Tentang">About</a>
+  <a href="#contact" class="cta-btn" onclick="toggleMenu()">
+    <span data-en="Get in touch" data-id="Hubungi Kami">Get in touch</span> →
+  </a>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero dot-grid px-6">
+  <div class="max-w-6xl mx-auto w-full">
+    <div class="grid lg:grid-cols-2 gap-16 items-center py-16">
+
+      <div class="hero-text">
+        <div class="tag-chip mb-6">
+          <span style="width:6px;height:6px;background:var(--primary);border-radius:50%;display:inline-block;"></span>
+          <span data-en="Ideas · Explore · Build" data-id="Ide · Eksplorasi · Bangun">Ideas · Explore · Build</span>
+        </div>
+
+        <h1 class="headline mb-6">
+          <span data-en="Turning <em>Eureka</em><br/>moments into<br/>clean Code" data-id="Mengubah momen<br/><em>Eureka</em><br/>menjadi Kode Bersih">Turning <em>Eureka</em><br/>moments into<br/>clean Code</span>
+        </h1>
+
+        <p style="font-size:0.95rem;color:#64748b;line-height:1.75;max-width:420px;margin-bottom:36px;"
+           data-en="We bridge the gap between creative ideas and technical implementation — building smart, efficient, and transparent digital solutions for modern businesses."
+           data-id="Kami menjembatani celah antara ide kreatif dan implementasi teknis — membangun solusi digital yang cerdas, efisien, dan transparan untuk bisnis modern.">
+          We bridge the gap between creative ideas and technical implementation — building smart, efficient, and transparent digital solutions for modern businesses.
+        </p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:48px;">
+          <a href="#contact" class="cta-btn">
+            <span data-en="Start a Project" data-id="Mulai Proyek">Start a Project</span> <span class="arrow">→</span>
+          </a>
+          <a href="#services" class="cta-ghost">
+            <span data-en="Explore Services" data-id="Lihat Layanan">Explore Services</span>
+          </a>
+        </div>
+
+        <div class="code-snippet" style="max-width:380px;">
+          <span class="comment">// <span data-en="eurecode approach" data-id="pendekatan eurecode">eurecode approach</span></span><br/>
+          <span class="keyword">const</span> solution = <span class="keyword">await</span><br/>
+          &nbsp;&nbsp;eurecode.<span style="color:#0056b3;">build</span>({<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;idea: <span class="string">"<span data-en="your_eureka" data-id="ide_eureka_mu">your_eureka</span>"</span>,<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;quality: <span class="string">"production"</span><br/>
+          &nbsp;&nbsp;});
+        </div>
+      </div>
+
+      <div class="hero-visual flex justify-center">
+        <div class="illustration-wrap">
+          <div class="illustration-bg"></div>
+          <svg viewBox="0 0 480 500" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:relative;z-index:1;">
+            <defs>
+              <linearGradient id="bulbGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="100%" stop-color="#bae6fd"/></linearGradient>
+              <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0.9"/><stop offset="100%" stop-color="#e0f2fe" stop-opacity="0.6"/></linearGradient>
+              <linearGradient id="handleGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient>
+              <filter id="softShadow"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0056b3" flood-opacity="0.18"/></filter>
+            </defs>
+            <ellipse cx="240" cy="460" rx="130" ry="24" fill="#0056b3" fill-opacity="0.07"/>
+            <g class="float-slow">
+              <circle cx="80" cy="120" r="4" fill="#0056b3" fill-opacity="0.3"/>
+              <circle cx="390" cy="180" r="3" fill="#38bdf8" fill-opacity="0.4"/>
+              <circle cx="60" cy="340" r="2.5" fill="#0056b3" fill-opacity="0.2"/>
+              <circle cx="420" cy="320" r="5" fill="#bae6fd" fill-opacity="0.5"/>
+            </g>
+            <g class="float-main" filter="url(#softShadow)">
+              <rect x="193" y="270" width="94" height="14" rx="4" fill="#94a3b8"/>
+              <rect x="202" y="284" width="76" height="10" rx="3" fill="#78909c"/>
+              <rect x="208" y="294" width="64" height="10" rx="3" fill="#6b7280"/>
+              <rect x="214" y="304" width="52" height="4" rx="2" fill="#94a3b8"/>
+              <ellipse cx="240" cy="195" rx="76" ry="76" fill="url(#bulbGrad)" stroke="#0056b3" stroke-width="2.5" stroke-opacity="0.3"/>
+              <ellipse cx="240" cy="195" rx="58" ry="58" fill="#fff" fill-opacity="0.7"/>
+              <ellipse cx="240" cy="195" rx="40" ry="40" fill="#fff" fill-opacity="0.5"/>
+              <path d="M228 195 Q235 178 240 195 Q245 212 252 195" stroke="#0056b3" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <line x1="240" y1="178" x2="240" y2="165" stroke="#0056b3" stroke-width="1.5" stroke-opacity="0.5"/>
+              <ellipse cx="218" cy="168" rx="14" ry="20" fill="#fff" fill-opacity="0.5" transform="rotate(-20, 218, 168)"/>
+              <rect x="210" y="265" width="60" height="10" rx="2" fill="#94a3b8" fill-opacity="0.6"/>
+              <line x1="296" y1="278" x2="342" y2="326" stroke="url(#handleGrad)" stroke-width="14" stroke-linecap="round"/>
+              <line x1="296" y1="278" x2="342" y2="326" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-opacity="0.3"/>
+              <circle cx="270" cy="252" r="46" fill="url(#glassGrad)" stroke="#0056b3" stroke-width="3.5"/>
+              <circle cx="270" cy="252" r="36" fill="transparent" stroke="#0056b3" stroke-width="1" stroke-opacity="0.2"/>
+              <ellipse cx="256" cy="238" rx="10" ry="15" fill="#fff" fill-opacity="0.55" transform="rotate(-20, 256, 238)"/>
+              <text x="252" y="247" font-family="JetBrains Mono, monospace" font-size="9" fill="#0056b3" font-weight="500">&lt;/&gt;</text>
+              <text x="248" y="260" font-family="JetBrains Mono, monospace" font-size="7" fill="#64748b">fn()</text>
+            </g>
+            <g class="float-slow">
+              <circle cx="155" cy="220" r="6" fill="var(--primary)" fill-opacity="0.18" stroke="var(--primary)" stroke-width="1.5" stroke-opacity="0.4"/>
+              <circle cx="330" cy="148" r="5" fill="#38bdf8" fill-opacity="0.25" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
+            </g>
+            <g class="float-slow" style="animation-delay:-2s;">
+              <rect x="50" y="230" width="52" height="6" rx="3" fill="#0056b3" fill-opacity="0.12"/>
+              <rect x="50" y="242" width="36" height="6" rx="3" fill="#0056b3" fill-opacity="0.08"/>
+            </g>
+            <g class="float-slow" style="animation-delay:-4s;">
+              <rect x="370" y="260" width="48" height="6" rx="3" fill="#38bdf8" fill-opacity="0.2"/>
+              <rect x="370" y="272" width="32" height="6" rx="3" fill="#38bdf8" fill-opacity="0.12"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="border-top:1px solid #e0f2fe;padding-top:40px;padding-bottom:20px;">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div>
+          <div class="stat-num">50+</div>
+          <div style="font-size:0.8rem;color:#64748b;margin-top:4px;font-family:'JetBrains Mono',monospace;" data-en="Projects Shipped" data-id="Proyek Selesai">Projects Shipped</div>
+        </div>
+        <div>
+          <div class="stat-num">3</div>
+          <div style="font-size:0.8rem;color:#64748b;margin-top:4px;font-family:'JetBrains Mono',monospace;" data-en="Core Services" data-id="Layanan Utama">Core Services</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div style="font-size:0.8rem;color:#64748b;margin-top:4px;font-family:'JetBrains Mono',monospace;" data-en="Clean Code" data-id="Kode Bersih">Clean Code</div>
+        </div>
+        <div>
+          <div class="stat-num">∞</div>
+          <div style="font-size:0.8rem;color:#64748b;margin-top:4px;font-family:'JetBrains Mono',monospace;" data-en="Ideas Welcome" data-id="Ide Selalu Diterima">Ideas Welcome</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SERVICES ═══ -->
+<section id="services" style="padding:100px 24px;background:#fafcff;">
+  <div class="max-w-6xl mx-auto">
+    <div class="section-label mb-4" data-en="Our Services" data-id="Layanan Kami">Our Services</div>
+    <div class="grid md:grid-cols-2 gap-6 items-end mb-14">
+      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);line-height:1.15;color:#0a0a0a;"
+          data-en="What we build<br/>for you" data-id="Apa yang kami<br/>bangun untuk Anda">What we build<br/>for you</h2>
+      <p style="font-size:0.88rem;color:#64748b;line-height:1.75;max-width:400px;"
+         data-en="From responsive web platforms to complex system integrations, our services are designed to take your idea from concept to production-ready product."
+         data-id="Dari platform web responsif hingga integrasi sistem yang kompleks, layanan kami dirancang untuk membawa ide Anda dari konsep menjadi produk siap produksi.">
+        From responsive web platforms to complex system integrations, our services are designed to take your idea from concept to production-ready product.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="service-card">
+        <div class="service-num">// 01</div>
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0056b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </div>
+        <div class="service-title" data-en="Web Development" data-id="Pengembangan Web">Web Development</div>
+        <p class="service-desc" data-en="Building modern, responsive, and user-oriented web platforms. From elegant frontends to robust backends." data-id="Membangun platform web modern yang responsif dan berorientasi pada pengguna. Dari frontend yang elegan hingga backend yang robust.">
+          Building modern, responsive, and user-oriented web platforms. From elegant frontends to robust backends.
+        </p>
+        <div style="margin-top:24px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Laravel</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Vue.js</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Tailwind</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-num">// 02</div>
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0056b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+          </svg>
+        </div>
+        <div class="service-title" data-en="System Integration" data-id="Integrasi Sistem">System Integration</div>
+        <p class="service-desc" data-en="Connecting various backend systems and databases for operational efficiency — API-first architecture with maintained security." data-id="Menghubungkan berbagai sistem backend dan database untuk efisiensi operasional — arsitektur API-first dengan keamanan yang terjaga.">
+          Connecting various backend systems and databases for operational efficiency — API-first architecture with maintained security.
+        </p>
+        <div style="margin-top:24px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">REST API</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">MySQL</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Redis</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-num">// 03</div>
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0056b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="service-title" data-en="Digital Transformation" data-id="Transformasi Digital">Digital Transformation</div>
+        <p class="service-desc" data-en="Technical consulting for early-stage startups to begin their digital journey — from system architecture to go-to-market strategy." data-id="Konsultasi teknis bagi startup pemula untuk memulai langkah digital mereka — dari arsitektur sistem hingga strategi go-to-market.">
+          Technical consulting for early-stage startups to begin their digital journey — from system architecture to go-to-market strategy.
+        </p>
+        <div style="margin-top:24px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Consulting</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;background:#e0f2fe;color:#0056b3;padding:3px 10px;border-radius:999px;">Architecture</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" style="padding:100px 24px;background:#fff;">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid lg:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="section-label mb-4" data-en="About eurecode" data-id="Tentang eurecode">About eurecode</div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);line-height:1.15;color:#0a0a0a;margin-bottom:24px;"
+            data-en="Bridging ideas<br/>and implementation" data-id="Menjembatani ide<br/>dan implementasi">Bridging ideas<br/>and implementation</h2>
+        <p style="font-size:0.9rem;color:#64748b;line-height:1.8;margin-bottom:20px;"
+           data-en="eurecode is an innovative tech startup bridging the gap between creative ideas (Eureka) and technical implementation (Code)."
+           data-id="eurecode adalah startup teknologi inovatif yang menjembatani celah antara ide kreatif (Eureka) dan implementasi teknis (Code).">
+          eurecode is an innovative tech startup bridging the gap between creative ideas (Eureka) and technical implementation (Code).
+        </p>
+        <p style="font-size:0.9rem;color:#64748b;line-height:1.8;margin-bottom:36px;"
+           data-en='With the philosophy <strong style="color:#0a0a0a;font-weight:600;">"Ideas, Explore, Build"</strong>, we are committed to helping businesses and individuals turn abstract concepts into real, functional products.'
+           data-id='Dengan filosofi <strong style="color:#0a0a0a;font-weight:600;">"Ideas, Explore, Build"</strong>, kami berkomitmen membantu bisnis dan individu mengubah konsep abstrak menjadi produk nyata yang fungsional.'>
+          With the philosophy <strong style="color:#0a0a0a;font-weight:600;">"Ideas, Explore, Build"</strong>, we are committed to helping businesses and individuals turn abstract concepts into real, functional products.
+        </p>
+        <div style="background:var(--secondary);border:1px solid #bae6fd;border-radius:8px;padding:28px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--primary);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">
+            // <span data-en="Our Vision" data-id="Visi Kami">Our Vision</span>
+          </div>
+          <p style="font-size:0.88rem;color:#1e3a5f;line-height:1.75;font-style:italic;"
+             data-en='"To become a trusted partner for innovators in building a more accessible digital future through clean code and result-oriented solutions."'
+             data-id='"Menjadi mitra terpercaya bagi para inovator dalam membangun masa depan digital yang lebih mudah diakses melalui kode yang bersih dan solusi yang berorientasi pada hasil."'>
+            "To become a trusted partner for innovators in building a more accessible digital future through clean code and result-oriented solutions."
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label mb-6" data-en="Core Values" data-id="Nilai Utama">Core Values</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="value-card">
+            <div class="value-dot" style="margin-top:8px;"></div>
+            <div>
+              <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;">
+                Discovery <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#94a3b8;font-weight:400;">(Eureka)</span>
+              </div>
+              <p class="service-desc" data-en="Always seeking new perspectives and the most effective solutions for every challenge faced." data-id="Selalu mencari sudut pandang baru dan solusi yang paling efektif untuk setiap tantangan yang dihadapi.">
+                Always seeking new perspectives and the most effective solutions for every challenge faced.
+              </p>
+            </div>
+          </div>
+          <div class="value-card">
+            <div class="value-dot" style="margin-top:8px;background:#38bdf8;"></div>
+            <div>
+              <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;">
+                Precision <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#94a3b8;font-weight:400;">(Code)</span>
+              </div>
+              <p class="service-desc" data-en="Ensuring every line of code is built with high quality standards and maintained security." data-id="Memastikan setiap baris kode dibangun dengan standar kualitas tinggi dan keamanan yang terjaga.">
+                Ensuring every line of code is built with high quality standards and maintained security.
+              </p>
+            </div>
+          </div>
+          <div class="value-card">
+            <div class="value-dot" style="margin-top:8px;background:#0ea5e9;"></div>
+            <div>
+              <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;">Exploration</div>
+              <p class="service-desc" data-en="Continuously conducting research and development to keep up with the latest technology trends." data-id="Terus melakukan riset dan pengembangan untuk mengikuti tren teknologi terbaru secara konsisten.">
+                Continuously conducting research and development to keep up with the latest technology trends.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PORTFOLIO ═══ -->
+<section id="portfolio" style="padding:100px 24px;background:#fafcff;">
+  <div class="max-w-6xl mx-auto">
+    <div class="section-label mb-4" data-en="Portfolio" data-id="Portofolio">Portfolio</div>
+    <div class="grid md:grid-cols-2 gap-6 items-end mb-12">
+      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);line-height:1.15;color:#0a0a0a;" data-en="Recent work" data-id="Karya Terbaru">Recent work</h2>
+      <p style="font-size:0.88rem;color:#64748b;line-height:1.75;" data-en="A selection of projects where ideas became functional, well-crafted digital products." data-id="Pilihan proyek di mana ide-ide menjadi produk digital fungsional yang dikerjakan dengan baik.">
+        A selection of projects where ideas became functional, well-crafted digital products.
+      </p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div style="background:#fff;border:1px solid #e0f2fe;border-radius:8px;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:pointer;" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px #0056b318'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);display:flex;align-items:center;justify-content:center;"><span style="font-family:'JetBrains Mono',monospace;font-size:2rem;color:#0056b360;">01</span></div>
+        <div style="padding:24px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--primary);margin-bottom:8px;" data-en="Web Platform" data-id="Platform Web">Web Platform</div>
+          <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;">E-Commerce Dashboard</div>
+          <p style="font-size:0.82rem;color:#94a3b8;">Laravel · Vue.js · MySQL</p>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0f2fe;border-radius:8px;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:pointer;" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px #0056b318'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;background:linear-gradient(135deg,#dbeafe,#e0f2fe);display:flex;align-items:center;justify-content:center;"><span style="font-family:'JetBrains Mono',monospace;font-size:2rem;color:#0056b360;">02</span></div>
+        <div style="padding:24px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--primary);margin-bottom:8px;" data-en="System Integration" data-id="Integrasi Sistem">System Integration</div>
+          <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;">Inventory Sync API</div>
+          <p style="font-size:0.82rem;color:#94a3b8;">REST API · Redis · Queue</p>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0f2fe;border-radius:8px;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:pointer;" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px #0056b318'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);display:flex;align-items:center;justify-content:center;"><span style="font-family:'JetBrains Mono',monospace;font-size:2rem;color:#0056b360;">03</span></div>
+        <div style="padding:24px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--primary);margin-bottom:8px;" data-en="Consulting" data-id="Konsultasi">Consulting</div>
+          <div style="font-weight:700;font-size:0.95rem;color:#0a0a0a;margin-bottom:6px;" data-en="Startup Tech Stack Setup" data-id="Persiapan Tech Stack Startup">Startup Tech Stack Setup</div>
+          <p style="font-size:0.82rem;color:#94a3b8;">Architecture · DevOps</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="contact" class="cta-section" style="padding:100px 24px;">
+  <div class="max-w-4xl mx-auto text-center" style="position:relative;z-index:1;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#93c5fd;margin-bottom:20px;"
+         data-en="// Start your project" data-id="// Mulai proyek Anda">// Start your project</div>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3.2rem);color:#fff;line-height:1.1;margin-bottom:20px;"
+        data-en="Have a Eureka moment?<br/>Let's write the code." data-id="Punya momen Eureka?<br/>Ayo tulis kodenya.">
+      Have a Eureka moment?<br/>Let's write the code.
+    </h2>
+    <p style="font-size:0.92rem;color:#bae6fd;line-height:1.75;max-width:480px;margin:0 auto 40px;"
+       data-en="From idea to launch — we're your technical co-founder. Reach out and let's build something worth shipping."
+       data-id="Dari ide hingga peluncuran — kami adalah co-founder teknis Anda. Hubungi kami dan mari membangun sesuatu yang layak untuk diluncurkan.">
+      From idea to launch — we're your technical co-founder. Reach out and let's build something worth shipping.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
+      <a href="mailto:hello@eurecode.dev" class="cta-white-btn">hello@eurecode.dev →</a>
+      <a href="#services" style="display:inline-flex;align-items:center;gap:8px;color:#bae6fd;font-family:'JetBrains Mono',monospace;font-size:0.82rem;letter-spacing:0.05em;padding:14px 20px;border:1.5px solid rgba(255,255,255,.25);border-radius:4px;text-decoration:none;transition:border-color .2s,color .2s;"
+         onmouseenter="this.style.borderColor='rgba(255,255,255,.6)';this.style.color='#fff'"
+         onmouseleave="this.style.borderColor='rgba(255,255,255,.25)';this.style.color='#bae6fd'"
+         data-en="View Services" data-id="Lihat Layanan">View Services</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer style="padding:48px 24px 32px;background:#0a0a0a;">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-8 mb-12">
+      <div style="grid-column:span 2;">
+        <div class="footer-logo mb-4">eure<span style="color:#38bdf8;">code</span></div>
+        <p style="font-size:0.82rem;color:#64748b;line-height:1.75;max-width:280px;"
+           data-en="Where every great idea finds its code. Building the digital future, one clean commit at a time."
+           data-id="Di mana setiap ide besar menemukan kodenya. Membangun masa depan digital, satu commit bersih sekaligus.">
+          Where every great idea finds its code. Building the digital future, one clean commit at a time.
+        </p>
+        <div style="margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#38bdf8;background:#0056b315;border:1px solid #0056b330;border-radius:4px;padding:8px 14px;display:inline-block;">
+          // Ideas · Explore · Build
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:16px;" data-en="Services" data-id="Layanan">Services</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#services" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="Web Development" data-id="Pengembangan Web">Web Development</a>
+          <a href="#services" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="System Integration" data-id="Integrasi Sistem">System Integration</a>
+          <a href="#services" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="Digital Transformation" data-id="Transformasi Digital">Digital Transformation</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:16px;" data-en="Company" data-id="Perusahaan">Company</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#about" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="About" data-id="Tentang">About</a>
+          <a href="#portfolio" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="Portfolio" data-id="Portofolio">Portfolio</a>
+          <a href="#contact" style="font-size:0.82rem;color:#64748b;text-decoration:none;transition:color .2s;" onmouseenter="this.style.color='#bae6fd'" onmouseleave="this.style.color='#64748b'" data-en="Contact" data-id="Kontak">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #1e293b;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#334155;" data-en="© 2025 eurecode. All rights reserved." data-id="© 2025 eurecode. Semua hak dilindungi.">© 2025 eurecode. All rights reserved.</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#334155;" data-en="Built with precision & passion." data-id="Dibangun dengan presisi & semangat.">Built with precision & passion.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ═══ LANGUAGE SWITCHER ═══ */
+  let currentLang = localStorage.getItem('eurecode-lang') || 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('eurecode-lang', lang);
+    document.documentElement.lang = lang === 'id' ? 'id' : 'en';
+    document.title = lang === 'id'
+      ? 'eurecode — Di mana setiap ide besar menemukan kodenya.'
+      : 'eurecode — Where every great idea finds its code.';
+
+    const elements = document.querySelectorAll('[data-en][data-id]');
+    elements.forEach(el => { el.style.transition = 'opacity 0.15s ease'; el.style.opacity = '0'; });
+
+    setTimeout(() => {
+      elements.forEach(el => {
+        const text = lang === 'id' ? el.getAttribute('data-id') : el.getAttribute('data-en');
+        if (text !== null) el.innerHTML = text;
+        el.style.opacity = '1';
+      });
+    }, 150);
+
+    // Sync all lang buttons across desktop + mobile
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      const label = btn.textContent.trim();
+      btn.classList.toggle('active', (lang === 'en' && label === 'EN') || (lang === 'id' && label === 'ID'));
+    });
+  }
+
+  // On load: apply saved language
+  document.addEventListener('DOMContentLoaded', () => { if (currentLang === 'id') setLang('id'); });
+
+  /* ═══ NAVBAR SCROLL ═══ */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 30));
+
+  /* ═══ MOBILE MENU ═══ */
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+  }
+
+  /* ═══ SMOOTH SCROLL ═══ */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function(e) {
+      const t = document.querySelector(this.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  /* ═══ SCROLL REVEAL ═══ */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.service-card, .value-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.4,0,.2,1)';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
